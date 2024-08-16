@@ -3,7 +3,9 @@ from .models import Menu, MealTime, Meal, MenuMealTime, UserMealSelection
 from .forms import MenuForm, MenuMealTimeFormSet  
 from django.db.models import Count
 from collections import defaultdict
-
+import qrcode
+from django.http import HttpResponse
+from io import BytesIO
 
 
 def create_menu(request):
@@ -126,3 +128,30 @@ def kitchen_report(request, menu_id):
         'total_people': total_people,
         'unfilled_seats': dict(unfilled_seats),  # Pass the unfilled seats dictionary to the template
     })
+
+
+
+def generate_qr_code(request):
+    # URL to the meal selection page
+    meal_selection_url = request.build_absolute_uri('/meals/select_meals/')
+    
+    # Generate QR code
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(meal_selection_url)
+    qr.make(fit=True)
+    
+    # Create an image from the QR code
+    img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Save the image to a BytesIO object
+    buffer = BytesIO()
+    img.save(buffer)
+    buffer.seek(0)
+
+    # Return the image as an HTTP response
+    return HttpResponse(buffer, content_type="image/png")
