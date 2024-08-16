@@ -4,21 +4,21 @@ from django.db import models
 
 class Meal(models.Model):
     DIET_CHOICES = [
-        (1, 'Diet 1'),
-        (2, 'Diet 2'),
-        (3, 'Diet 3'),
-        (4, 'Diet 4'),
-        (5, 'Diet 5'),
-        (6, 'Diet 6'),
-        (7, 'Diet 7'),
-        (8, 'Diet 8'),
-        (9, 'Diet 9'),
-        (10, 'Diet 10'),
-        (11, 'Diet 11'),
-        (12, 'Diet 12'),
-        (13, 'Diet 13'),
-        (14, 'Diet 14'),
-        (15, 'Diet 15'),
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '5'),
+        (6, '6'),
+        (7, '7'),
+        (8, '8'),
+        (9, '9'),
+        (10, '10'),
+        (11, '11'),
+        (12, '12'),
+        (13, '13'),
+        (14, '14'),
+        (15, '15'),
     ]
 
     name = models.CharField(max_length=100)

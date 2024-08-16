@@ -45,6 +45,9 @@ def menu_detail(request, menu_id):
         'meal_times_with_meals': meal_times_with_meals,
     })
 
+def success(request):
+    return render(request, 'success.html')
+
 def select_meals(request, menu_id):
     menu = get_object_or_404(Menu, id=menu_id)
     
@@ -66,17 +69,29 @@ def select_meals(request, menu_id):
                         table_number=table_number,
                         seat_number=seat_number
                     )
-        return redirect('menu_detail', menu_id=menu.id)
+        return redirect('success')
     
     meal_times_with_options = []
     for meal_time in menu.meal_times.all():
         menu_mealtime = menu.menumealtime_set.get(meal_time=meal_time)
         meals = menu_mealtime.meals.all().order_by('category__name', 'name')
         meal_times_with_options.append((meal_time, meals))
+
+
+
+    # Define the strict order of categories
+    category_order = ['завтрак', 'Каша', 'Первые блюда', 'Вторые блюда', 'Ужин', 'Гарниры', 'Запеканка', 'Напитки']  # Example categories
+
+    ordered_meal_times_with_options = []
+    for meal_time, meals in meal_times_with_options:
+        ordered_meals = sorted(meals, key=lambda meal: category_order.index(meal.category.name) if meal.category.name in category_order else len(category_order))
+        ordered_meal_times_with_options.append((meal_time, ordered_meals))
+
+
     
     return render(request, 'select_meals.html', {
         'menu': menu,
-        'meal_times_with_options': meal_times_with_options,
+        'meal_times_with_options': ordered_meal_times_with_options,
     })
 
 
@@ -116,7 +131,11 @@ def kitchen_report(request, menu_id):
     meals_to_cook = UserMealSelection.objects.filter(menu_mealtime__menu=menu).values('meal__name').annotate(total=Count('meal'))
 
     # Detailed serving plan (table and seat assignments)
-    serving_plan = UserMealSelection.objects.filter(menu_mealtime__menu=menu).order_by('table_number', 'seat_number')
+    serving_plan = UserMealSelection.objects.filter(
+        menu_mealtime__menu=menu
+    ).exclude(
+        meal__category__name="Напитки"  # Replace "Drinks" with the exact category name in your database
+    ).order_by('table_number', 'seat_number')
 
     # Calculate the total number of unique people who have completed their selections
     total_people = filled_seats.distinct().count()
@@ -133,7 +152,7 @@ def kitchen_report(request, menu_id):
 
 def generate_qr_code(request):
     # URL to the meal selection page
-    meal_selection_url = request.build_absolute_uri('/meals/select_meals/')
+    meal_selection_url = request.build_absolute_uri('/meals/select_meals/16')
     
     # Generate QR code
     qr = qrcode.QRCode(

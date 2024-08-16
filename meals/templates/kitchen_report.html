@@ -26,23 +26,24 @@
 </head>
 <body>
     <div class="container">
-        <h1>Kitchen Report for {{ menu.date }}</h1>
+        <h2 class="text-center">Отчет для кухни на {{ menu.name }}</h2>
+        <h2>{{ menu.date }}</h2>
 
-        <h2>Total Meals to Cook</h2>
-        <ul>
+        <h2>Что нужно приготовить</h2>
+        <ul> 
             {% for meal in meals_to_cook %}
-                <li>{{ meal.meal__name }}: {{ meal.total }} servings</li>
+                <li>{{ meal.meal__name }}: {{ meal.total }}</li>
             {% endfor %}
         </ul>
 
-        <h2>Serving Plan</h2>
+        <h2>Обслуживание</h2>
 
         <div class="container mt-4">
             {% regroup serving_plan by table_number as tables %}
             {% for table in tables %}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h3>Table №{{ table.grouper }}</h3>
+                        <h3>Стол №{{ table.grouper }}</h3>
                     </div>
                     <div class="card-body">
                         {% regroup table.list by menu_mealtime.meal_time.name as mealtimes %}
@@ -52,8 +53,8 @@
                                 <table class="table table-bordered">
                                     <thead class="thead-dark">
                                         <tr>
-                                            <th scope="col">Seat</th>
-                                            <th scope="col">Meal</th>
+                                            <th scope="col">Место</th>
+                                            <th scope="col">Блюдо</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -82,11 +83,11 @@
 
         
         <div class="container mt-4">
-            <h2>Unfilled Seats</h2>
+            <h2>Не заполнили выбор меню</h2>
             <div class="row">
                 {% for table_number, seats in unfilled_seats.items %}
                     <div class="col-6 col-md-4 mb-4">
-                        <h5>Table {{ table_number }}:</h5>
+                        <h5>Стол {{ table_number }}:</h5>
                         <p>
                             {% for seat_number in seats %}
                                 {{ seat_number }}{% if not forloop.last %}, {% endif %}
