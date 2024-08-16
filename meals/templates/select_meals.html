@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Меню на следующий день</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container my-4">
+        <h3 class="text-center">Пожалуйста, выберите одно блюдо из меню на следующий день.</h3>
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="table_number">Стол №</label>
+                    <input type="number" class="form-control" id="table_number" name="table_number" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="seat_number">Место</label>
+                    <input type="number" class="form-control" id="seat_number" name="seat_number" required>
+                </div>
+            </div>
+
+            {% for meal_time, meals in meal_times_with_options %}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3 class="mb-0">{{ meal_time.name }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {% regroup meals by category as category_meals %}
+                        {% for category in category_meals %}
+                            <h4>{{ category.grouper.name }}</h4>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="width: 5px; text-align: center; font-size: 0.875rem;">Select</th>
+                                        <th scope="col" style="font-size: 0.875rem;">Diets</th>
+                                        <th scope="col" style="font-size: 0.875rem;">Meal Name</th>
+                                        <th scope="col" style="font-size: 0.875rem;">Calories (kcal)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for meal in category.list %}
+                                        <tr>
+                                            <td style="text-align: center;">
+                                                <input class="form-check-input" type="radio" name="meal_{{ meal_time.id }}_{{ category.grouper.id }}" id="meal_{{ meal.id }}" value="{{ meal.id }}" required>
+                                            </td>
+                                            <td>
+                                                {% for diet in meal.get_diet_category_display %}
+                                                    {{ diet }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                            <td>
+                                                <label class="form-check-label" for="meal_{{ meal.id }}">
+                                                    {{ meal.name }}
+                                                </label>
+                                            </td>
+                                            <td>{{ meal.kcal }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+
+
+
+
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg">Submit Selections</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS (optional, if you need Bootstrap components like modals) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
